@@ -14,36 +14,41 @@ LONG_BREAK_MIN = 20
 REPS = 8
 START_GAME = True
 actual_check = ""
-
+time = None
 
 # ---------------------------- TIMER RESET ------------------------------- #
 
 def reset():
-    return
+    global actual_check, REPS
+    windows.after_cancel(time)
+    canvas.itemconfig(time_text, text=f"{0:02d}:{0:02d}")
+    first_label.config(text="Timer", fg=GREEN)
+    actual_check = ""
+    REPS = 8
+
 
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 
 def start():
     global REPS, actual_check
-    work_time = WORK_MIN
-    short_break_time = SHORT_BREAK_MIN
-    long_break_time = LONG_BREAK_MIN
+    work_time = WORK_MIN * 60
+    short_break_time = SHORT_BREAK_MIN * 60
+    long_break_time = LONG_BREAK_MIN * 60
 
     if REPS > 0:
         if REPS == 1:
             actual_check += "✔"
             count_down(long_break_time)
-            print("Hora de un descanso largo")
+            first_label.config(text="Break",fg=RED)
             check_label.config(text=actual_check)
         elif REPS % 2 == 0:
             count_down(work_time)
-            print("Hora de trabajo")
+            first_label.config(text="Work",fg=GREEN)
         else:
             actual_check += "✔"
             count_down(short_break_time)
             check_label.config(text=actual_check)
-            print("Hora de un pequeno descanso")
-        print(REPS)
+            first_label.config(text="Break",fg=PINK)
         REPS -= 1
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
@@ -53,7 +58,8 @@ def count_down(count):
     seconds = count % 60
     canvas.itemconfig(time_text, text=f"{minutes:02d}:{seconds:02d}")
     if count > 0:
-        windows.after(1000, count_down, count - 1)
+        global time
+        time = windows.after(1000, count_down, count - 1)
     else:
         start()
 
